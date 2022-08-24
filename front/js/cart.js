@@ -1,22 +1,26 @@
-const page = document.location.href;
+let page = JSON.parse(localStorage.getItem('cart'));
+console.table(page);
 
-if (page.match("cart")){
-    fetch("http://localhost:3000/api/products")
-    .then((res) => {
-        return res.json();
-    })
-    .then(function(productlist) {
-        displayPanier(productlist);
-        console.table(productlist);
-    })
-    .catch(function(error) {
-        document.querySelector("#cartAndFormContainer").innerText = "Erreur";
-        console.log(error);
-    })
-}
 
+
+
+
+
+/*
 function displayPanier(){
-    let panier = window.localStorage.getItem('product');
-    console.log(panier);
-    
-}
+    for (let product in page){
+        let productArticle = document.createElement("article");
+        document.querySelector("#cart__items").appendChild(productArticle);
+        productArticle.className = "cart__item";
+        productArticle.setAttribute('product-id', page[product].item_id);
+
+        let productImgDiv = document.createElement('div');
+        productArticle.appendChild(productImgDiv);
+        productImgDiv.className = "cart__item__img";
+
+        let productImg = document.createElement('img');
+        productImgDiv.appendChild(productImg);
+        productImg.src = page[product].imageUrl;
+        productImg.alt = page[product].altTxt;
+    }
+}*/
