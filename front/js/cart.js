@@ -18,4 +18,5 @@ if (page.match("cart")){
 function displayPanier(){
     let panier = window.localStorage.getItem('product');
     console.log(panier);
+    
 }
