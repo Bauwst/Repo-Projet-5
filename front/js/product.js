@@ -1,7 +1,17 @@
 
 const params = new URLSearchParams(document.location.search);
-
 const id = params.get("id");
+const redirectToCart = () => {
+    window.location.href = "cart.html"
+}
+let itemClient = {};
+itemClient._id = id;
+let choiseColor = document.querySelector("#colors");
+let colorItem;
+let choiseQuantity = document.querySelector('input[id="quantity"]');
+let quantityItem;
+let cartButton = document.querySelector("#addToCart");
+
 
 fetch("http://localhost:3000/api/products/" + id)
     .then((res) => {
@@ -14,10 +24,6 @@ fetch("http://localhost:3000/api/products/" + id)
         document.querySelector(".titles").innerText = "Erreur";
         console.log(error);
     })
-
-
-let itemClient = {};
-itemClient._id = id;
 
 
 function displayProduct(item) {
@@ -45,37 +51,51 @@ function displayProduct(item) {
     }
 }
 
+function activateButton(colorItem, quantityItem){
+    const button = document.querySelector('button');
+    if((colorItem == null || colorItem == "") || (quantityItem == null || quantityItem < 1 || quantityItem > 100 )){
+        button.disable = true;
+        document.querySelector(".item__content__addButton").style.opacity = 0.2;    
+    }
+    else {
+        document.querySelector(".item__content__addButton").style.opacity = 1;
+        button.disable = false;
+    }
+}
 
-let choiseColor = document.querySelector("#colors");
-let colorItem;
 
 choiseColor.addEventListener("input", (eventColor) => {
     colorItem = eventColor.target.value;
     itemClient.color = colorItem;
+    activateButton(colorItem,quantityItem);
     console.log(colorItem);
 })
-
-
-let choiseQuantity = document.querySelector('input[id="quantity"]');
-let quantityItem;
 
 choiseQuantity.addEventListener("input", (eventQuantity) => {
     quantityItem = eventQuantity.target.value;
     itemClient.quantity = quantityItem;
+    activateButton(colorItem,quantityItem);
     console.log(quantityItem);
 })
 
 
-function checkItem(color, quantity){
-    if(color == null || (quantity < 1 || quantity > 100 ))
-        alert("Veuillez selectionner une couleur et une quantité entre 1 et 100."); 
-}
-
-let cartButton = document.querySelector("#addToCart");
-
 cartButton.addEventListener("click", () => {
-    console.log(colorItem, quantityItem);
-    checkItem(colorItem, quantityItem);
+    if((colorItem == null || colorItem == "") || (quantityItem == null || quantityItem < 1 || quantityItem > 100 )){
+        alert("Veuillez selectionner une couleur et une quantité entre 1 et 100.");
+        console.log(colorItem);
+        console.log(quantityItem); 
+    }
+    else{
+        window.localStorage.setItem('product' , JSON.stringify(itemClient));
+        redirectToCart();
+    }
 })
+
+
+
+
+
+
+
 
 
