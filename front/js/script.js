@@ -37,6 +37,6 @@ function displayProducts(articles) {
     }
 } 
 
-
+ 
 
 

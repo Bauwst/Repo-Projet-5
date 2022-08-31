@@ -1,9 +1,6 @@
 
 const params = new URLSearchParams(document.location.search);
 const id = params.get("id");
-const redirectToCart = () => {
-    window.location.href = "cart.html"
-}
 var itemClient = {};
 itemClient._id = id;
 let choiseColor = document.querySelector("#colors");
@@ -17,7 +14,7 @@ let cart = JSON.parse(localStorage.getItem('cart'));
 if (cart == null){
     cart = [];
 }
-
+let searchItem = cart.find(si => si.id == itemClient._id && si.color == itemClient.color);
 
 
 fetch("http://localhost:3000/api/products/" + id)
@@ -25,14 +22,12 @@ fetch("http://localhost:3000/api/products/" + id)
         return res.json();
     })
     .then(function(product) {
-        itemClient = product;
         displayProduct(product);
     })
     .catch(function(error) {
         document.querySelector(".titles").innerText = "Erreur";
         console.log(error);
     })
-
 
 
 function displayProduct(item) {
@@ -62,7 +57,7 @@ function displayProduct(item) {
     console.table(item);
 }
 
-function activateButton(colorItem, quantityItem){
+function activateButton(){
     const button = document.querySelector('button');
     if((colorItem == null || colorItem == "") || (quantityItem == null || quantityItem < 1 || quantityItem > 100 )){
         button.disable = true;
@@ -77,27 +72,32 @@ function activateButton(colorItem, quantityItem){
 choiseColor.addEventListener("input", (eventColor) => {
     colorItem = eventColor.target.value;
     itemClient.color = colorItem;
-    activateButton(colorItem,quantityItem);
+    activateButton();
     console.log(colorItem);
 })
 
 choiseQuantity.addEventListener("input", (eventQuantity) => {
     quantityItem = eventQuantity.target.value;
     itemClient.quantity = quantityItem;
-    activateButton(colorItem,quantityItem);
+    activateButton();
     console.log(quantityItem);
 })
-
 
 
 cartButton.addEventListener("click", () => {
     if((colorItem == null || colorItem == "") || (quantityItem == null || quantityItem < 1 || quantityItem > 100 )){
         alert("Veuillez selectionner une couleur et une quantité entre 1 et 100."); 
     }
+    else if(searchItem != undefined) {
+        let totalQuantity = parseInt(itemClient.quantity) + parseInt(searchItem.quantity);
+        itemClient.quantity = totalQuantity;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = "cart.html";
+    }
     else{
         cart.push(itemClient);
-        window.localStorage.setItem('cart', JSON.stringify(cart));
-        redirectToCart();
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = "cart.html";
     }
 })
 
