@@ -14,7 +14,7 @@ let cart = JSON.parse(localStorage.getItem('cart'));
 if (cart == null){
     cart = [];
 }
-let searchItem = cart.find(si => si.id == itemClient._id && si.color == itemClient.color);
+
 
 
 fetch("http://localhost:3000/api/products/" + id)
@@ -85,14 +85,16 @@ choiseQuantity.addEventListener("input", (eventQuantity) => {
 
 
 cartButton.addEventListener("click", () => {
+    let searchItem = cart.find(si => si._id == itemClient._id && si.color == itemClient.color);
     if((colorItem == null || colorItem == "") || (quantityItem == null || quantityItem < 1 || quantityItem > 100 )){
         alert("Veuillez selectionner une couleur et une quantité entre 1 et 100."); 
     }
     else if(searchItem != undefined) {
         let totalQuantity = parseInt(itemClient.quantity) + parseInt(searchItem.quantity);
-        itemClient.quantity = totalQuantity;
+        searchItem.quantity = totalQuantity;
         localStorage.setItem('cart', JSON.stringify(cart));
         window.location.href = "cart.html";
+        console.log(cart);
     }
     else{
         cart.push(itemClient);
