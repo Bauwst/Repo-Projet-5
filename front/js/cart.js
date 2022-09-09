@@ -1,26 +1,29 @@
+// Récupération des articles dans le panier via le localStorage
 let panier = JSON.parse(localStorage.getItem('cart'));
+// Affichage des informations du panier dans la console
 console.table(panier);
 
+//Définition des variables globales
 let infoPrice = [];
 let infoQuantity = [];
-let products = [];
-
 let form = document.querySelector(".cart__order__form");
-
 let btnOrder = document.getElementById("order");
-
 let inputFirstName = document.getElementById('firstName');
 let inputLastName = document.getElementById('lastName');
 let inputAddress = document.getElementById('address');
 let inputCity = document.getElementById('city');
 let inputEmail = document.getElementById('email');
- 
-let prénomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,32}$', 'g');
+
+// Définition des Regex pour la validation des champs du formulaire
+let prenomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,32}$', 'g');
 let nomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,42}$', 'g');
 let villeRegExp =  new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,50}$', 'g');
 let adresseRegExp = new RegExp ('^[A-Za-zÀ-ÖØ-öø-ÿ0-9 -]{2,60}$', 'g');
-let emailRegExp =  new RegExp('^[a-zA-Z0-9.-_-]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,60}$','g');
-/*let emailRegExp = RegExp("^[a-zA-Z0-9.-_-]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,60}$");*/
+let emailRegExp =  new RegExp('^[a-zA-Z0-9.-_-]+@[a-zA-Z0-9.-_]+.[a-z]{2,}$','g');
+
+
+/////////////////////////////////////////////////////////////////////////----- AFFICHAGE PANIER -----//////////////////////////////////////////////////////////////////////////////////
+
 
 function displayPanier(index) {  
     let cartZone = document.getElementById("cart__items");
@@ -110,8 +113,9 @@ function displayPanier(index) {
 
 displayPanier(panier);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////----- FONCTIONS -----/////////////////////////////////////////////////////////////////////////////////////////////
 
+// Création d'une fonction qui permet l'affichage du prix total du panier en fonction des prix et de la quantité des articles
 function totalPanier(quantity, price){
     let totalQuantity = document.getElementById('totalQuantity');
     let totalPrice = document.getElementById('totalPrice');
@@ -130,62 +134,127 @@ function totalPanier(quantity, price){
     totalPrice.innerText = prixTotal;
 }
 
+// Création d'une fonction permettant de supprimer un article du panier
 function removeItemPanier(){
+
+    // Définition du/des bouton(s) 'Supprimer'
     let btnDelete = document.querySelectorAll('.deleteItem');
 
+    // Boucle itérant les occurences du bouton 'Supprimer'
     for (let x = 0; x < btnDelete.length; x++ ) { 
+
+        // Ecoute du bouton 'Supprimer'
         btnDelete[x].addEventListener("click", () => { 
+            
+            // Récupération de l'Id et de la couleur du produit dans le panier
             let deleteId = panier[x]._id;
             let deleteColor = panier[x].color;
-            panier = panier.filter(pan => pan._id != deleteId || pan.color != deleteColor);
+
+            // Conserve les produits ne correspondant pas aux caractéristiques du produit récupéré 
+            panier = panier.filter(pan => !(pan._id == deleteId && pan.color == deleteColor));
+
+            // Sauvegarde de la modification du panier
             localStorage.setItem('cart', JSON.stringify(panier));
+
+            // Rechargement de la page
             location.reload();       
         })
     }
 }
 
+// Création d'une fonction permettant d'ajuster la quantité d'un article dans la panier
 function adjustQuantity() {
+
+    // Définition du/des champ(s) 'quantité'
     let modifQuantity = document.querySelectorAll('.itemQuantity')
 
+    // Boucle itérant les occurences du champ "quantité"
     for (let q = 0; q < modifQuantity.length; q++){
+
+        // Ecoute du/des champ(s) "quantité"
         modifQuantity[q].addEventListener("change", () => {
+
+            // Récupération de l'Id et de la couleur du produit dans le panier
             let quantityId = panier[q]._id;
             let quantityColor = panier[q].color;
+
+            // Réupération de la quantité du champ écouté
             let newQuantity = parseInt(modifQuantity[q].value);
 
+            // Si la quantitée modifiée est = 0 , l'article est supprimer du panier
             if(modifQuantity[q].value == 0) {
+
+                // Conserve les détails des produits ne correspondant pas aux caractéristiques du produit récupéré 
                 panier = panier.filter(pan => pan._id != quantityId || pan.color != quantityColor);
+
+                // Sauvegarde de la modification du panier
                 localStorage.setItem('cart', JSON.stringify(panier));
+
+                // Rechargement de la page
                 location.reload(); 
             }
+
+            // Si la quantité est inférieure à 100 , modification de la quantité
             else if (modifQuantity[q].value <= 100){
+
+                // Conserve les détails des produits ne correspondant pas aux caractéristiques du produit récupéré 
                 let itemQtyAdjust = panier.find(iqa => iqa._id === quantityId && iqa.color === quantityColor);
+
+                // Modification de la valeur de 'quantity'
                 itemQtyAdjust.quantity = newQuantity;
+
+                // Sauvegarde de la modification du panier
                 localStorage.setItem('cart', JSON.stringify(panier));
+
+                // Rechargement de la page
                 location.reload();
-            } else {
+            }
+
+            // Si la quantitée est donc supérieure à 100, envoie d'un message d'erreur 
+            else {
                 window.alert("Quantitée invalide");
             }
         })
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////----- EVENTS LISTENERS -----/////////////////////////////////////////////////////////////////////////////////////////////////
 
-form.firstName.addEventListener('change', () => {
+// Ecoute du champ "prénom"
+form.firstName.addEventListener('change', (e) => {
+
+    // Définition du champ de message d'erreur
     let errorMsg = document.getElementById("firstNameErrorMsg");
-    if (prénomRegExp.test(this.value)){
+
+    // Affichage de l'évenement dans la console
+    console.log(e);
+
+    // Test de la validité du champ via la regex
+    if (prenomRegExp.test(e.target.value)){
+
+        // Indication que le champ est 'Valide'
         errorMsg.innerText = "Valide";
+
+        // Retourne la valeur 'true'
         return true;
-    } else {
+    } 
+    // Si le test échoue, 
+    else {
+
+        // Indication que le champ est 'Incorrect'
         errorMsg.innerText = "Incorrect";
+
+        // Retourne la valeur 'false'
         return false;
     }
 })
 
-form.lastName.addEventListener('change', () => {
+
+// Ecoute du champ "nom"
+form.lastName.addEventListener('change', (e) => {
     let errorMsg = document.getElementById("lastNameErrorMsg");
-    if (nomRegExp.test(this.value)){
+    console.log(e);
+    if (nomRegExp.test(e.target.value)){
         errorMsg.innerText = "Valide";
         return true;
     } else {
@@ -194,9 +263,12 @@ form.lastName.addEventListener('change', () => {
     }
 })
 
-form.address.addEventListener('change', () => {
+
+// Ecoute du champ "adresse"
+form.address.addEventListener('change', (e) => {
     let errorMsg = document.getElementById("addressErrorMsg");
-    if (adresseRegExp.test(this.value)){
+    console.log(e);
+    if (adresseRegExp.test(e.target.value)){
         errorMsg.innerText = "Valide";
         return true;
     } else {
@@ -205,9 +277,12 @@ form.address.addEventListener('change', () => {
     }
 })
 
-form.city.addEventListener('change', () => {
+
+// Ecoute du champ "ville"
+form.city.addEventListener('change', (e) => {
     let errorMsg = document.getElementById("cityErrorMsg");
-    if (villeRegExp.test(this.value)){
+    console.log(e);
+    if (villeRegExp.test(e.target.value)){
         errorMsg.innerText = "Valide";
         return true;
     } else {
@@ -216,27 +291,31 @@ form.city.addEventListener('change', () => {
     }
 })
 
-form.email.addEventListener('change', () => {
+
+// Ecoute du champ "email"
+form.email.addEventListener('change', (e) => {
     let errorMsg = document.getElementById("emailErrorMsg");
-    if (emailRegExp.test(this.value)){
+    console.log(e);
+    if (emailRegExp.test(e.target.value)){
         errorMsg.textContent = "Valide";
         return true;
     } else {
         errorMsg.textContent = "Incorrect";
-        return false;
+        return false;  
     }
+    
 })
 
-///////////////////////////////////////////////////
 
+// Ecoute du bouton "Commander"
 btnOrder.addEventListener("click", (e) => {
     e.preventDefault();
-    if (prénomRegExp.test == true && 
-        nomRegExp.test == true &&
-        adresseRegExp.test == true &&
-        villeRegExp.test == true &&
-        emailRegExp.test == true) {
-            let products = [];
+    if (prenomRegExp.test(form.firstName.value) && 
+        nomRegExp.test(form.lastName.value) &&
+        villeRegExp.test(form.city.value) &&
+        adresseRegExp.test(form.address.value) &&
+        emailRegExp.test(form.email.value)) {
+        let products = [];
             for (let pr = 0; pr < panier.length; pr++) {
                 products.push(panier[pr]._id);
 
