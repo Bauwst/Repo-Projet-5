@@ -8,36 +8,40 @@ let infoPrice = [];
 let infoQuantity = [];
 let form = document.querySelector(".cart__order__form");
 let btnOrder = document.getElementById("order");
-let inputFirstName = document.getElementById('firstName');
-let inputLastName = document.getElementById('lastName');
-let inputAddress = document.getElementById('address');
-let inputCity = document.getElementById('city');
-let inputEmail = document.getElementById('email');
 
 // Définition des Regex pour la validation des champs du formulaire
-let prenomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,32}$', 'g');
-let nomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,42}$', 'g');
-let villeRegExp =  new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,50}$', 'g');
-let adresseRegExp = new RegExp ('^[A-Za-zÀ-ÖØ-öø-ÿ0-9 -]{2,60}$', 'g');
-let emailRegExp =  new RegExp('^[a-zA-Z0-9.-_-]+@[a-zA-Z0-9.-_]+.[a-z]{2,}$','g');
+let prenomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,32}$');
+let nomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,42}$');
+let villeRegExp =  new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,50}$');
+let adresseRegExp = new RegExp ('^[A-Za-zÀ-ÖØ-öø-ÿ0-9]{2,60}$');
+let emailRegExp =  new RegExp('^[a-zA-Z0-9.-_-]+@[a-zA-Z0-9.-_]+.[a-z]{2,}$');
 
 
 /////////////////////////////////////////////////////////////////////////----- AFFICHAGE PANIER -----//////////////////////////////////////////////////////////////////////////////////
 
-
+// Fonction de l'affichage des produits sélectionnés dans le panier
 function displayPanier(index) {  
+
+    // Selection de la zone d'affichage du panier
     let cartZone = document.getElementById("cart__items");
+
+    // Boucle pour une création par ensemble d'article différents dans le panier
     for (let panier of index) {
 
+        // Récupération du produit via l'URL + l'id du produit dans le panier
         fetch("http://localhost:3000/api/products/" + panier._id)
 
+        // Renvoi des infos du produit
         .then((res) => res.json()
 
+        // Définition de 'article' puis affichage dans le DOM des infos du produit dans le panier
         .then((article) => {
 
+            // Récupération des valeurs de prix et de quantité 
             var quantity = panier.quantity;
             var price = article.price;
 
+            // Création du DOM de la zone d'article
             let articleZone = document.createElement('article');
             articleZone.className = 'cart__item';
             articleZone.setAttribute('data-id', panier._id);
@@ -104,6 +108,7 @@ function displayPanier(index) {
             settingDelete.appendChild(pDelete);
             cartZone.appendChild(articleZone);
 
+            // Appel des fonctions pour: "le prix total du panier" "suppréssion d'un item du panier" et "l'ajustement de la quantité d'un élement du panier"
             totalPanier(quantity,price);
             removeItemPanier();
             adjustQuantity();
@@ -117,19 +122,31 @@ displayPanier(panier);
 
 // Création d'une fonction qui permet l'affichage du prix total du panier en fonction des prix et de la quantité des articles
 function totalPanier(quantity, price){
+
+    //Récupération des balises via leur ID pour l'affichage des infos
     let totalQuantity = document.getElementById('totalQuantity');
     let totalPrice = document.getElementById('totalPrice');
+
+    // Déclaration des variable de prix total et quantité totale
     let quantitéTotale = 0;
     let prixTotal = 0;
+
+    //Récup de la quantité au moment de l'ajout dans le local storage
     let nombreQuantité = parseInt(quantity);
 
+    // Ajout des prix et quantitées dans leurs Array
     infoQuantity.push({nombreQuantité});
     infoPrice.push({price});
 
+    // Boucle servant à récupérer les infos des produits
     for(let info in infoPrice) {
+
+        // Calculs de la quantité et du prix total
         quantitéTotale += infoQuantity[info].nombreQuantité;
         prixTotal += (infoQuantity[info].nombreQuantité * infoPrice[info].price);
     }
+
+    // Insertion des infos dans le DOM
     totalQuantity.innerText = quantitéTotale;
     totalPrice.innerText = prixTotal;
 }
@@ -306,20 +323,29 @@ form.email.addEventListener('change', (e) => {
     
 })
 
-
 // Ecoute du bouton "Commander"
 btnOrder.addEventListener("click", (e) => {
+
+    // Prévention du comportement par default du formulaire
     e.preventDefault();
-    if (prenomRegExp.test(form.firstName.value) && 
-        nomRegExp.test(form.lastName.value) &&
-        villeRegExp.test(form.city.value) &&
-        adresseRegExp.test(form.address.value) &&
-        emailRegExp.test(form.email.value)) {
+
+    // Vérification du formulaire
+        if (prenomRegExp.test(form.firstName.value) && 
+            nomRegExp.test(form.lastName.value)  &&
+            adresseRegExp.test(form.address.value) &&
+            villeRegExp.test(form.city.value) &&
+            emailRegExp.test(form.email.value)) {        
+
+        // Création d'un Array à envoyer à l'API    
         let products = [];
+            
+            // Boucle itérant les articles dans le panier pour récupérer leur id
             for (let pr = 0; pr < panier.length; pr++) {
                 products.push(panier[pr]._id);
 
             }
+
+            // Création d'un objet "clientOrder" qui contient le tableau de produits et les informations du contact
             let clientOrder = {
                 contact : {
                     firstName: document.getElementById('firstName').value,
@@ -331,6 +357,8 @@ btnOrder.addEventListener("click", (e) => {
                 products
             }
 
+
+            // Envois des informations à l'API
             fetch("http://localhost:3000/api/products/order", {
                 method: "POST",
                 body: JSON.stringify(clientOrder),
@@ -338,18 +366,24 @@ btnOrder.addEventListener("click", (e) => {
                     "content-Type": "application/json"
                 }
             })
+
+            // Renvoi de la réponse de l'API
             .then((res) => res.json())
 
+            // Définition de "data", suppression du localStorage et redirection vers la page de confirmation
             .then((data) => {
                 console.log(data);
                 localStorage.clear();
                 window.location.href = `confirmation.html?orderId=${data.orderId}`;
             })
             .catch((error) => {
+
+                // Insertion d'un message "Erreur" sur la page
                 document.getElementById("cartAndFormContainer").textContent = "Erreur"; 
                 console.log("Erreur:" + error) 
            });
         } else {
+            // Message d'erreur si le formulaire est mal remplis
             window.alert("Veuillez correctement completer et vérifier le formulaire svp");
     }
 })
