@@ -9,11 +9,12 @@ let infoQuantity = [];
 let form = document.querySelector(".cart__order__form");
 let btnOrder = document.getElementById("order");
 
+
 // Définition des Regex pour la validation des champs du formulaire
-let prenomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,32}$');
-let nomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,42}$');
-let villeRegExp =  new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ]{2,50}$');
-let adresseRegExp = new RegExp ('^[A-Za-zÀ-ÖØ-öø-ÿ0-9]{2,60}$');
+let prenomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,32}$');
+let nomRegExp = new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,42}$');
+let villeRegExp =  new RegExp('^[A-Za-zÀ-ÖØ-öø-ÿ -]{2,50}$');
+let adresseRegExp = new RegExp ('^[A-Za-zÀ-ÖØ-öø-ÿ0-9 -]{2,60}$');
 let emailRegExp =  new RegExp('^[a-zA-Z0-9.-_-]+@[a-zA-Z0-9.-_]+.[a-z]{2,}$');
 
 
@@ -329,7 +330,7 @@ btnOrder.addEventListener("click", (e) => {
     // Prévention du comportement par default du formulaire
     e.preventDefault();
 
-    // Vérification du formulaire
+        // Vérification du formulaire
         if (prenomRegExp.test(form.firstName.value) && 
             nomRegExp.test(form.lastName.value)  &&
             adresseRegExp.test(form.address.value) &&
