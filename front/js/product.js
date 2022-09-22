@@ -36,6 +36,9 @@ fetch("http://localhost:3000/api/products/" + id)
 
     // Insertion et affichage des informations du produit sélectionné
     .then(function(product) {
+        itemClient.price = product.price;
+        itemClient.imageUrl = product.imageUrl;
+        itemClient.altTxt = product.altTxt;
         displayProduct(product);
     })
 
@@ -49,7 +52,9 @@ fetch("http://localhost:3000/api/products/" + id)
 /////////////////////////////////////////////////////////////////////----- AFFICHAGE DE L'ARTICLE-----////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// Création du DOM , affichage du produit
+/**  Création du DOM pour l'affichage du produit sélectionné
+* @param { Array.<{_id:String, name:String, price:Integer , imageUrl: String, altTxt:String, description:String}>  } item Array du produit choisi
+*/
 function displayProduct(item) {
 
     // Récupération des élements/classes
@@ -94,7 +99,8 @@ function displayProduct(item) {
 }
 
 
-// Création d'une fonction permettant l'activation du bouton "Commander"
+/**  Création d'une fonction permettant l'activation du bouton "Commander"
+ * */
 function activateButton(){
     const button = document.querySelector('button');
 
@@ -150,6 +156,7 @@ cartButton.addEventListener("click", () => {
 
     // Création d'une variable pour vérifier si l'article est déjà présent ou non dans le panier
     let searchItem = cart.find(si => si._id == itemClient._id && si.color == itemClient.color);
+    //let searchItem = Array.from(cart).find(si => si._id == itemClient._id && si.color == itemClient.color);
 
     // Vérification des champs remplis par le client
     // Si au moins un des champs est mal renseigné, affichage d'un message d'erreur
@@ -179,6 +186,7 @@ cartButton.addEventListener("click", () => {
 
         // Ajout de l'article au panier
         cart.push(itemClient);
+        //Array.from(cart).push(itemClient);
 
         // Sauvegarde du panier dans le localStorage
         localStorage.setItem('cart', JSON.stringify(cart));

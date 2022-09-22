@@ -7,7 +7,7 @@ fetch("http://localhost:3000/api/products")
             return res.json();
         }
     })
-
+    
     // Insertion et affichage des élements reçus
     .then(function(productlist) {
         displayProducts(productlist);
@@ -17,11 +17,14 @@ fetch("http://localhost:3000/api/products")
     // Message d'erreur en cas de non-réponse de l'API
     .catch(function(error) {
         document.querySelector(".titles").innerText = "Erreur";
-        console.log(error);
+        console.log(error);     
     })
+    
 
+/**  Création du DOM pour l'affichage de la liste des produits 
+* @param { Array.<{ _id: String, name: String, price: Integer , imageUrl: String, altTxt:String, description: String }> } articles Array des différents produits
+*/
 
-// Création du DOM, affichage des produits 
 function displayProducts(articles) {
 
     // Variable de la zone des articles
